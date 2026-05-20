@@ -108,7 +108,7 @@ app.get('/add-school', (req, res) => {
         startDate: req.query.startDate,
         endDate: req.query.endDate,
         teamNames: req.query.selectedTeams.split(","),
-        eventLog: { ...eventLog },
+        eventLog: [],
     }
     data.schools.push(entry)
     res.send(data.schools)
