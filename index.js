@@ -94,7 +94,7 @@ app.get("/delete-users", (req, res) => {
 
 app.get("/update-school", (req, res) => {
     const eventLog = data.schools[req.query.i].eventLog
-
+    console.log(req.query.selectedTeams)
     data.schools[req.query.i] = { schoolName: req.query.schoolName, programName: req.query.programName, numberOfDays: Number(req.query.numberOfDays), participants: Number(req.query.participants), startDate: req.query.startDate, endDate: req.query.endDate, teamNames: req.query.selectedTeams, eventLog: eventLog }
     res.send(data.schools)
 })
