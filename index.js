@@ -94,17 +94,8 @@ app.get("/delete-users", (req, res) => {
 
 app.get("/update-school", (req, res) => {
     const eventLog = data.schools[req.query.i].eventLog
-    var teamUpdatedNames =  [];
-    req.query.selectedTeams.split(",").forEach((team) => {
-        const existingTeam = data.schools[req.query.i].teamNames.find(t => t.name === team)
-        if (existingTeam) {
-            teamUpdatedNames.push(existingTeam)
-        } else {
-            teamUpdatedNames.push({ name: team, score: 0 })
-        }
-    })
 
-    data.schools[req.query.i] = { schoolName: req.query.schoolName, programName: req.query.programName, numberOfDays: Number(req.query.numberOfDays), participants: Number(req.query.participants), startDate: req.query.startDate, endDate: req.query.endDate, teamNames: req.query.selectedTeams.split(","), eventLog: eventLog }
+    data.schools[req.query.i] = { schoolName: req.query.schoolName, programName: req.query.programName, numberOfDays: Number(req.query.numberOfDays), participants: Number(req.query.participants), startDate: req.query.startDate, endDate: req.query.endDate, teamNames: req.query.selectedTeams, eventLog: eventLog }
     res.send(data.schools)
 })
 
