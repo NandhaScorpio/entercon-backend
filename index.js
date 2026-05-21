@@ -94,12 +94,28 @@ app.get("/delete-users", (req, res) => {
 
 app.get("/update-school", (req, res) => {
     const eventLog = data.schools[req.query.i].eventLog
+    var teamUpdatedNames =  [];
+    req.query.selectedTeams.split(",").forEach((team) => {
+        const existingTeam = data.schools[req.query.i].teamNames.find(t => t.name === team)
+        if (existingTeam) {
+            teamUpdatedNames.push(existingTeam)
+        } else {
+            teamUpdatedNames.push({ name: team, score: 0 })
+        }
+    })
+
     data.schools[req.query.i] = { schoolName: req.query.schoolName, programName: req.query.programName, numberOfDays: Number(req.query.numberOfDays), participants: Number(req.query.participants), startDate: req.query.startDate, endDate: req.query.endDate, teamNames: req.query.selectedTeams.split(","), eventLog: eventLog }
     res.send(data.schools)
 })
 
 
 app.get('/add-school', (req, res) => {
+
+    var teamNames = []
+    for (let i = 0; i < req.query.selectedTeams.split(",").length; i++) {
+        teamNames.push({ name: req.query.selectedTeams.split(",")[i], score: 0 })
+    }
+
     const entry = {
         schoolName: req.query.schoolName,
         programName: req.query.programName,
@@ -107,7 +123,7 @@ app.get('/add-school', (req, res) => {
         participants: Number(req.query.participants),
         startDate: req.query.startDate,
         endDate: req.query.endDate,
-        teamNames: req.query.selectedTeams.split(","),
+        teamNames: teamNames,
         eventLog: [],
     }
     data.schools.push(entry)
