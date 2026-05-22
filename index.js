@@ -96,7 +96,7 @@ app.get("/update-school", (req, res) => {
     const eventLog = data.schools[req.query.i].eventLog
     var selectedTeams = req.query.selectedTeams.split(",")
     var sendingTeamData = [];
-    selectedTeams.map((t) => (sendingTeamData.push({ name: t, points: data.schools[i].teamNames.find((tn) => tn.name === t)?.points || 0 })));
+    selectedTeams.map((t) => (sendingTeamData.push({ name: t, points: data.schools[req.query.i].teamNames.find((tn) => tn.name === t)?.points || 0 })));
     console.log(sendingTeamData)
     data.schools[req.query.i] = { schoolName: req.query.schoolName, programName: req.query.programName, numberOfDays: Number(req.query.numberOfDays), participants: Number(req.query.participants), startDate: req.query.startDate, endDate: req.query.endDate, teamNames: sendingTeamData, eventLog: eventLog }
     res.send(data.schools)
