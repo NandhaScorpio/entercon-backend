@@ -30,7 +30,7 @@ const data = {
             startDate: "2026-01-01",
             endDate: "2026-01-05",
             status: "completed",
-            teamNames: [{name: "Humble Hyenas", score: 85}, {name: "Brave Bisons", score: 75}, {name: "Resilient Rhinos", score: 80}, {name: "Truthful Tigers", score: 90}, {name: "Disciplined Dragons", score: 85}, {name: "Kind Kangaroos", score: 70}, {name: "Compassionate Cobras", score: 85}, {name: "Grateful Gorillas", score: 90}, {name: "Positive Peacocks", score: 80}, {name: "Loyal Lions", score: 85}, {name: "Friendly Foxes", score: 75}, {name: "Fierce Falcons", score: 90}],
+            teamNames: [{name: "Humble Hyenas", score: 85}, {name: "Brave Bisons", score: 75}, {name: "Resilient Rhinos", score: 80}, {name: "Truthful Tigers", score: 90}, {name: "Disciplined Dragons", score: 85}, {name: "Kind Kangaroos", score: 70}, {name: "Compassionate Cobras", score: 85}, {name: "Grateful Gorillas", score: 90}, {name: "Positive Peacocks", score: 80}, {name: "Loyal Lions", score: 85},  {name: "Fierce Falcons", score: 90}],
             eventLog: [
                 [
                     { time: "12.00 PM", team: "Humble Hyenas", points: 10, events: "Answering in mic" },
