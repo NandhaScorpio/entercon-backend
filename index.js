@@ -41,7 +41,7 @@ const data = {
                     { time: "12.50 PM", team: "Resilient Rhinos", points: 10, events: "Answering in mic" },
                 ],
                 [
-                    { time: "1.00 PM", team: "Compassionate Cobra", points: 10, events: "Answering in mic" },
+                    { time: "1.00 PM", team: "Compassionate Cobras", points: 10, events: "Answering in mic" },
                     { time: "1.10 PM", team: "Disciplined Dragons", points: 30, events: "Hunt the Wolf" },
                     { time: "1.20 PM", team: "Fierce Falcons", points: 10, events: "Answering in mic" },
                     { time: "1.30 PM", team: "Comapssionate Cobras", points: 40, events: "Hunt the Wolf" },
@@ -61,7 +61,7 @@ const data = {
                     { time: "3.10 PM", team: "Grateful Gorillas", points: 30, events: "Hunt the Wolf" },
                     { time: "3.20 PM", team: "Positive Peacocks", points: 10, events: "Answering in mic" },
                     { time: "3.30 PM", team: "Grateful Gorillas", points: 40, events: "Hunt the Wolf" },
-                    { time: "3.40 PM", team: "Compassionate Peacocks", points: 10, events: "Answering in mic" },
+                    { time: "3.40 PM", team: "Compassionate Cobras", points: 10, events: "Answering in mic" },
                     { time: "3.50 PM", team: "Positive Peacocks", points: 10, events: "Answering in mic" },
                 ],
                 [
