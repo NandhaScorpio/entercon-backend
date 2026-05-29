@@ -140,7 +140,6 @@ app.get("/add-points", (req, res) => {
     data.schools[schoolIndex].eventLog[dayIndex].push({ time: time, team: teamName, points: points, events: event })
     res.send(data.schools);
 })
-
 app.get('/', (req, res) => {
     res.send(data)
 })
