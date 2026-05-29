@@ -129,6 +129,17 @@ app.get("/delete-school", (req, res) => {
     res.send(data.schools)
 })
 
+app.get("/add-points", (req, res) => {
+    const dayIndex = Number(req.query.dayIndex)
+    const teamName = req.query.teamName
+    const points = Number(req.query.points)
+    const event = req.query.event
+    const time = req.query.time
+    const schoolIndex = Number(req.query.schoolIndex)
+
+    data.schools[schoolIndex].eventLog[dayIndex].push({ time: time, team: teamName, points: points, events: event })
+    res.send(data.schools);
+})
 app.get('/', (req, res) => {
     res.send(data)
 })
