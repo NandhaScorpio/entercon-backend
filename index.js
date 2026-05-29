@@ -110,6 +110,13 @@ app.get('/add-school', (req, res) => {
         teamNames.push({ name: req.query.selectedTeams.split(",")[i], score: 0 })
     }
 
+    let numberOfDays = Number(req.query.numberOfDays);
+    var eventLog = [];
+
+    for(var i = 0; i < numberOfDays; i++) {
+        eventLog.push([])
+    }
+
     const entry = {
         schoolName: req.query.schoolName,
         programName: req.query.programName,
@@ -118,7 +125,7 @@ app.get('/add-school', (req, res) => {
         startDate: req.query.startDate,
         endDate: req.query.endDate,
         teamNames: teamNames,
-        eventLog: [],
+        eventLog: eventLog,
     }
     data.schools.push(entry)
     res.send(data.schools)
