@@ -1,165 +1,494 @@
-const express = require('express')
-const app = express()
-const cors = require('cors')
-require('dotenv').config()
+const express = require("express");
+const app = express();
+const cors = require("cors");
+const mongoose = require("mongoose");
+require("dotenv").config();
 
-app.use(cors())
+app.use(cors());
 
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-const data = {
-    users: [
-        {
-            name: "Admin",
-            role: "Admin",
-            password: "admin"
-        },
-        {
-            name: "Nandha",
-            role: "Trainer",
-            password: "123",
-        }
-    ],
-    schools: [
-        {
-            schoolName: "SIS",
-            programName: "SSFUP",
-            numberOfDays: 5,
-            participants: 50,
-            startDate: "2026-01-01",
-            endDate: "2026-01-05",
-            status: "completed",
-            teamNames: [{name: "Humble Hyenas", score: 85}, {name: "Brave Bisons", score: 75}, {name: "Resilient Rhinos", score: 80}, {name: "Truthful Tigers", score: 90}, {name: "Disciplined Dragons", score: 85}, {name: "Kind Kangaroos", score: 70}, {name: "Compassionate Cobras", score: 85}, {name: "Grateful Gorillas", score: 90}, {name: "Positive Peacocks", score: 80}, {name: "Loyal Lions", score: 85},  {name: "Fierce Falcons", score: 90}],
-            eventLog: [
-                [
-                    { time: "12.00 PM", team: "Humble Hyenas", points: 10, events: "Answering in mic" },
-                    { time: "12.10 PM", team: "Brave Bisons", points: 30, events: "Hunt the Wolf" },
-                    { time: "12.20 PM", team: "Resilient Rhinos", points: 10, events: "Answering in mic" },
-                    { time: "12.30 PM", team: "Humble Hyenas", points: 40, events: "Hunt the Wolf" },
-                    { time: "12.40 PM", team: "Brave Bisons", points: 10, events: "Answering in mic" },
-                    { time: "12.50 PM", team: "Resilient Rhinos", points: 10, events: "Answering in mic" },
-                ],
-                [
-                    { time: "1.00 PM", team: "Compassionate Cobras", points: 10, events: "Answering in mic" },
-                    { time: "1.10 PM", team: "Disciplined Dragons", points: 30, events: "Hunt the Wolf" },
-                    { time: "1.20 PM", team: "Fierce Falcons", points: 10, events: "Answering in mic" },
-                    { time: "1.30 PM", team: "Comapssionate Cobras", points: 40, events: "Hunt the Wolf" },
-                    { time: "1.40 PM", team: "Fierce Falcons", points: 10, events: "Answering in mic" },
-                    { time: "1.50 PM", team: "Disciplined Dragons", points: 10, events: "Answering in mic" },
-                ],
-                [
-                    { time: "2.00 PM", team: "Truthful Tigers", points: 10, events: "Answering in mic" },
-                    { time: "2.10 PM", team: "Loyal Lions", points: 30, events: "Hunt the Wolf" },
-                    { time: "2.20 PM", team: "Humble Hyenas", points: 10, events: "Answering in mic" },
-                    { time: "2.30 PM", team: "Humble Hyenas", points: 40, events: "Hunt the Wolf" },
-                    { time: "2.40 PM", team: "Truthful Tigers", points: 10, events: "Answering in mic" },
-                    { time: "2.50 PM", team: "Loyal Lions", points: 10, events: "Answering in mic" },
-                ],
-                [
-                    { time: "3.00 PM", team: "Compassionate Cobras", points: 10, events: "Answering in mic" },
-                    { time: "3.10 PM", team: "Grateful Gorillas", points: 30, events: "Hunt the Wolf" },
-                    { time: "3.20 PM", team: "Positive Peacocks", points: 10, events: "Answering in mic" },
-                    { time: "3.30 PM", team: "Grateful Gorillas", points: 40, events: "Hunt the Wolf" },
-                    { time: "3.40 PM", team: "Compassionate Cobras", points: 10, events: "Answering in mic" },
-                    { time: "3.50 PM", team: "Positive Peacocks", points: 10, events: "Answering in mic" },
-                ],
-                [
-                    { time: "4.00 PM", team: "Humble Hyenas", points: 10, events: "Answering in mic" },
-                    { time: "4.10 PM", team: "Brave Bisons", points: 30, events: "Hunt the Wolf" },
-                    { time: "4.20 PM", team: "Resilient Rhinos", points: 10, events: "Answering in mic" },
-                    { time: "4.30 PM", team: "Humble Hyenas", points: 40, events: "Hunt the Wolf" },
-                    { time: "4.40 PM", team: "Brave Bisons", points: 10, events: "Answering in mic" },
-                    { time: "4.50 PM", team: "Resilient Rhinos", points: 10, events: "Answering in mic" },
-                ]
-            ]
-        },
-    ]
-}
+const UserSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  role: {
+    type: String,
+    required: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+});
 
-app.get("/add-users", (req, res) => {
-    data.users.push({ name: req.query.username, password: req.query.password, role: req.query.role })
-    res.send(data.users)
-})
+const TeamSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  score: {
+    type: Number,
+    default: 0,
+  },
+});
 
-app.get("/update-users", (req, res) => {
-    data.users[req.query.i] = { name: req.query.name, password: req.query.password, role: req.query.role }
-    res.send(data.users)
-})
+const EventSchema = new mongoose.Schema({
+  time: {
+    type: String,
+    required: true,
+  },
+  team: {
+    type: String,
+    required: true,
+  },
+  points: {
+    type: Number,
+    required: true,
+  },
+  events: {
+    type: String,
+    required: true,
+  },
+});
 
-app.get("/delete-users", (req, res) => {
-    data.users.splice(req.query.i, 1)
-    res.send(data.users)
-})
+const SchoolSchema = new mongoose.Schema({
+  schoolName: {
+    type: String,
+    required: true,
+  },
+  programName: {
+    type: String,
+    required: true,
+  },
+  numberOfDays: {
+    type: Number,
+    required: true,
+  },
+  participants: {
+    type: Number,
+    required: true,
+  },
+  startDate: {
+    type: String,
+    required: true,
+  },
+  endDate: {
+    type: String,
+    required: true,
+  },
+  teamNames: {
+    type: [TeamSchema],
+    default: [],
+  },
+  eventLog: {
+    type: [[EventSchema]],
+    default: [],
+  },
+});
 
-app.get("/update-school", (req, res) => {
-    const eventLog = data.schools[req.query.i].eventLog
-    var selectedTeams = req.query.selectedTeams.split(",")
-    var sendingTeamData = [];
-    selectedTeams.map((t) => (sendingTeamData.push({ name: t, points: data.schools[req.query.i].teamNames.find((tn) => tn.name === t)?.points || 0 })));
-    console.log(sendingTeamData)
-    data.schools[req.query.i] = { schoolName: req.query.schoolName, programName: req.query.programName, numberOfDays: Number(req.query.numberOfDays), participants: Number(req.query.participants), startDate: req.query.startDate, endDate: req.query.endDate, teamNames: sendingTeamData, eventLog: eventLog }
-    res.send(data.schools)
-})
+const DatabaseSchema = new mongoose.Schema({
+  users: {
+    type: [UserSchema],
+    default: [],
+  },
+  schools: {
+    type: [SchoolSchema],
+    default: [],
+  },
+});
 
+let data;
 
-app.get('/add-school', (req, res) => {
+mongoose
+  .connect("mongodb+srv://NandhaPG:Nandhapg09*@nandha.7qpquh8.mongodb.net/entercon?appName=nandha")
+  .then((res) => console.log("Connected to MongoDB"))
+  .catch((err) => console.log(err));
 
-    var teamNames = []
+const entercon = mongoose.model("entercon", DatabaseSchema, "entercon");
+
+entercon
+  .find()
+  .then((s) => {
+    data = s;
+  })
+  .catch((err) => console.log(err));
+
+app.get("/add-users", async (req, res) => {
+  try {
+    const { username, role, password } = req.query;
+
+    const db = await entercon.findOne();
+
+    db.users.push({
+      name: username,
+      role,
+      password
+    });
+
+    await db.save();
+
+    res.send(db.users);
+
+  } catch (err) {
+    console.log(err);
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+});
+
+app.get("/update-users", async (req, res) => {
+  try {
+    const { name, password, role, i } = req.query;
+
+    const db = await entercon.findOne();
+
+    if (!db) {
+      return res.status(404).json({
+        success: false,
+        message: "Database not found",
+      });
+    }
+
+    const index = Number(i);
+
+    if (
+      isNaN(index) ||
+      index < 0 ||
+      index >= db.users.length
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user index",
+      });
+    }
+
+    db.users[index].name = name;
+    db.users[index].password = password;
+    db.users[index].role = role;
+
+    await db.save();
+
+    res.send(db.users);
+
+  } catch (err) {
+    console.log(err);
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+});
+
+app.get("/delete-users", async (req, res) => {
+  try {
+    const { i } = req.query;
+
+    const db = await entercon.findOne();
+
+    db.users.splice(Number(i), 1);
+
+    await db.save();
+
+    res.send(db.users);
+
+  } catch (err) {
+    console.log(err);
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+});
+
+app.get("/update-school", async (req, res) => {
+  try {
+    const {
+      i,
+      schoolName,
+      programName,
+      numberOfDays,
+      participants,
+      startDate,
+      endDate,
+      selectedTeams,
+    } = req.query;
+
+    const db = await entercon.findOne();
+
+    if (!db) {
+      return res.status(404).json({
+        success: false,
+        message: "Database not found",
+      });
+    }
+
+    const index = Number(i);
+
+    if (
+      isNaN(index) ||
+      index < 0 ||
+      index >= db.schools.length
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid school index",
+      });
+    }
+
+    const oldSchool = db.schools[index];
+
+    // Keep existing event log
+    const eventLog = oldSchool.eventLog;
+
+    // Keep scores for existing teams, new teams start with 0
+    const teamNames = selectedTeams.split(",").map((team) => ({
+      name: team,
+      score:
+        oldSchool.teamNames.find((t) => t.name === team)?.score || 0,
+    }));
+
+    db.schools[index].schoolName = schoolName;
+    db.schools[index].programName = programName;
+    db.schools[index].numberOfDays = Number(numberOfDays);
+    db.schools[index].participants = Number(participants);
+    db.schools[index].startDate = startDate;
+    db.schools[index].endDate = endDate;
+    db.schools[index].teamNames = teamNames;
+    db.schools[index].eventLog = eventLog;
+
+    await db.save();
+
+    res.send(db.schools);
+
+  } catch (err) {
+    console.log(err);
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+});
+
+app.get("/add-school", async (req, res) => {
+  try {
+    const db = await entercon.findOne();
+
+    let teamNames = [];
+
     for (let i = 0; i < req.query.selectedTeams.split(",").length; i++) {
-        teamNames.push({ name: req.query.selectedTeams.split(",")[i], score: 0 })
+      teamNames.push({
+        name: req.query.selectedTeams.split(",")[i],
+        score: 0,
+      });
     }
 
     let numberOfDays = Number(req.query.numberOfDays);
-    var eventLog = [];
 
-    for(var i = 0; i < numberOfDays; i++) {
-        eventLog.push([])
+    let eventLog = [];
+
+    for (let i = 0; i < numberOfDays; i++) {
+      eventLog.push([]);
     }
 
     const entry = {
-        schoolName: req.query.schoolName,
-        programName: req.query.programName,
-        numberOfDays: Number(req.query.numberOfDays),
-        participants: Number(req.query.participants),
-        startDate: req.query.startDate,
-        endDate: req.query.endDate,
-        teamNames: teamNames,
-        eventLog: eventLog,
+      schoolName: req.query.schoolName,
+      programName: req.query.programName,
+      numberOfDays: numberOfDays,
+      participants: Number(req.query.participants),
+      startDate: req.query.startDate,
+      endDate: req.query.endDate,
+      teamNames,
+      eventLog,
+    };
+
+    db.schools.push(entry);
+
+    await db.save();
+
+    res.send(db.schools);
+
+  } catch (err) {
+    console.log(err);
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+});
+
+app.get("/delete-school", async (req, res) => {
+  try {
+    const { i } = req.query;
+
+    const db = await entercon.findOne();
+
+    if (!db) {
+      return res.status(404).json({
+        success: false,
+        message: "Database not found",
+      });
     }
-    data.schools.push(entry)
-    res.send(data.schools)
-})
 
-app.get("/delete-school", (req, res) => {
-    data.schools.splice(req.query.i, 1)
-    res.send(data.schools)
-})
+    const index = Number(i);
 
-app.get("/add-points", (req, res) => {
-    const dayIndex = Number(req.query.dayIndex)
-    const teamName = req.query.teamName
-    const points = Number(req.query.points)
-    const event = req.query.event
-    const time = req.query.time
-    const schoolIndex = Number(req.query.schoolIndex)
+    if (
+      isNaN(index) ||
+      index < 0 ||
+      index >= db.schools.length
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid school index",
+      });
+    }
 
-    data.schools[schoolIndex].eventLog[dayIndex].push({ time: time, team: teamName, points: points, events: event })
-    res.send(data.schools);
-})
+    db.schools.splice(index, 1);
 
-app.get("/undo-points", (req, res) => {
-    const dayIndex = Number(req.query.dayIndex)
-    const schoolIndex = Number(req.query.matchingIndex)
-    const index = Number(req.query.index)
-    data.schools[schoolIndex].eventLog[dayIndex - 1].splice(index, 1)
-    res.send(data.schools)
-})
+    await db.save();
 
-app.get('/', (req, res) => {
-    res.send(data)
-})
+    res.send(db.schools);
+
+  } catch (err) {
+    console.log(err);
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+});
+
+app.get("/add-points", async (req, res) => {
+  try {
+    const dayIndex = Number(req.query.dayIndex);
+    const teamName = req.query.teamName;
+    const points = Number(req.query.points);
+    const event = req.query.event;
+    const time = req.query.time;
+    const schoolIndex = Number(req.query.schoolIndex);
+
+    const db = await entercon.findOne();
+
+    if (!db) {
+      return res.status(404).json({
+        success: false,
+        message: "Database not found",
+      });
+    }
+
+    const school = db.schools[schoolIndex];
+
+    if (!school) {
+      return res.status(404).json({
+        success: false,
+        message: "School not found",
+      });
+    }
+
+    // Add event to the selected day
+    school.eventLog[dayIndex].push({
+      time,
+      team: teamName,
+      points,
+      events: event,
+    });
+
+    // Update team score
+    const team = school.teamNames.find(
+      (t) => t.name === teamName
+    );
+
+    if (team) {
+      team.score += points;
+    }
+
+    await db.save();
+
+    res.send(db.schools);
+
+  } catch (err) {
+    console.log(err);
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+});
+
+app.get("/undo-points", async (req, res) => {
+  try {
+    const dayIndex = Number(req.query.dayIndex);
+    const schoolIndex = Number(req.query.matchingIndex);
+    const index = Number(req.query.index);
+
+    const db = await entercon.findOne();
+
+    if (!db) {
+      return res.status(404).json({
+        success: false,
+        message: "Database not found",
+      });
+    }
+
+    const school = db.schools[schoolIndex];
+
+    if (!school) {
+      return res.status(404).json({
+        success: false,
+        message: "School not found",
+      });
+    }
+
+    const dayEvents = school.eventLog[dayIndex - 1];
+
+    if (!dayEvents || !dayEvents[index]) {
+      return res.status(400).json({
+        success: false,
+        message: "Event not found",
+      });
+    }
+
+    const deletedEvent = dayEvents[index];
+
+    const team = school.teamNames.find(
+      (t) => t.name === deletedEvent.team
+    );
+
+    if (team) {
+      team.score -= deletedEvent.points;
+    }
+
+    dayEvents.splice(index, 1);
+
+    await db.save();
+
+    res.send(db.schools);
+
+  } catch (err) {
+    console.log(err);
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+});
+
+app.get("/", (req, res) => {
+  entercon.find().then((s) => res.send(s)).catch((err) => console.log(err));
+});
 
 app.listen(5000, () => {
-    console.log('Server running on port 5000')
-})
+  console.log("Server running on port 5000");
+});
