@@ -103,7 +103,7 @@ const DatabaseSchema = new mongoose.Schema({
 let data;
 
 mongoose
-  .connect("mongodb+srv://NandhaPG:Nandhapg09*@nandha.7qpquh8.mongodb.net/entercon?appName=nandha")
+  .connect("mongodb+srv://NandhaPG:123@nandha.7qpquh8.mongodb.net/entercon?appName=nandha")
   .then((res) => console.log("Connected to MongoDB"))
   .catch((err) => console.log(err));
 
