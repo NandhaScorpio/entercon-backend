@@ -103,48 +103,45 @@ const DatabaseSchema = new mongoose.Schema({
 let data;
 
 mongoose
-  .connect("mongodb+srv://NandhaPG:Nandhapg09*@nandha.7qpquh8.mongodb.net/entercon?appName=nandha")
+  .connect(
+    "mongodb+srv://NandhaPG:123@nandha.7qpquh8.mongodb.net/entercon?appName=nandha",
+  )
   .then((res) => console.log("Connected to MongoDB"))
   .catch((err) => console.log(err));
 
 const entercon = mongoose.model("entercon", DatabaseSchema, "entercon");
 
-entercon
-  .find()
-  .then((s) => {
-    data = s;
-  })
-  .catch((err) => console.log(err));
-
 app.get("/add-users", async (req, res) => {
   try {
     const { username, role, password } = req.query;
 
-    const db = await entercon.findOne();
+    await entercon.updateOne(
+      {},
+      {
+        $push: {
+          users: {
+            name: username,
+            role,
+            password,
+          },
+        },
+      },
+    );
 
-    db.users.push({
-      name: username,
-      role,
-      password
-    });
+    const updatedDb = await entercon.findOne();
 
-    await db.save();
-
-    res.send(db.users);
-
+    res.send(updatedDb.users);
   } catch (err) {
     console.log(err);
-
-    res.status(500).json({
-      success: false,
-      message: "Server Error",
-    });
+    res.status(500).send("Server Error");
   }
 });
 
 app.get("/update-users", async (req, res) => {
   try {
     const { name, password, role, i } = req.query;
+
+    const index = Number(i);
 
     const db = await entercon.findOne();
 
@@ -155,27 +152,28 @@ app.get("/update-users", async (req, res) => {
       });
     }
 
-    const index = Number(i);
-
-    if (
-      isNaN(index) ||
-      index < 0 ||
-      index >= db.users.length
-    ) {
+    if (isNaN(index) || index < 0 || index >= db.users.length) {
       return res.status(400).json({
         success: false,
         message: "Invalid user index",
       });
     }
 
-    db.users[index].name = name;
-    db.users[index].password = password;
-    db.users[index].role = role;
+    const result = await entercon.updateOne(
+      {},
+      {
+        $set: {
+          [`users.${index}.name`]: name,
+          [`users.${index}.password`]: password,
+          [`users.${index}.role`]: role,
+        },
+      }
+    );
 
-    await db.save();
 
-    res.send(db.users);
+    const updatedDb = await entercon.findOne();
 
+    res.send(updatedDb.users);
   } catch (err) {
     console.log(err);
 
@@ -188,23 +186,29 @@ app.get("/update-users", async (req, res) => {
 
 app.get("/delete-users", async (req, res) => {
   try {
-    const { i } = req.query;
+    const index = Number(req.query.i);
 
     const db = await entercon.findOne();
 
-    db.users.splice(Number(i), 1);
 
-    await db.save();
+    const users = [...db.users];
+    users.splice(index, 1);
 
-    res.send(db.users);
+    const result = await entercon.updateOne(
+      {},
+      {
+        $set: { users },
+      },
+    );
 
+
+    const updatedDb = await entercon.findOne();
+
+
+    res.send(updatedDb.users);
   } catch (err) {
     console.log(err);
-
-    res.status(500).json({
-      success: false,
-      message: "Server Error",
-    });
+    res.status(500).send("Server Error");
   }
 });
 
@@ -221,6 +225,8 @@ app.get("/update-school", async (req, res) => {
       selectedTeams,
     } = req.query;
 
+    const index = Number(i);
+
     const db = await entercon.findOne();
 
     if (!db) {
@@ -230,44 +236,42 @@ app.get("/update-school", async (req, res) => {
       });
     }
 
-    const index = Number(i);
-
-    if (
-      isNaN(index) ||
-      index < 0 ||
-      index >= db.schools.length
-    ) {
+    if (isNaN(index) || index < 0 || index >= db.schools.length) {
       return res.status(400).json({
         success: false,
         message: "Invalid school index",
       });
     }
 
-    const oldSchool = db.schools[index];
+    const oldSchool = JSON.parse(
+      JSON.stringify(db.schools[index])
+    );
 
-    // Keep existing event log
-    const eventLog = oldSchool.eventLog;
-
-    // Keep scores for existing teams, new teams start with 0
     const teamNames = selectedTeams.split(",").map((team) => ({
       name: team,
       score:
         oldSchool.teamNames.find((t) => t.name === team)?.score || 0,
     }));
 
-    db.schools[index].schoolName = schoolName;
-    db.schools[index].programName = programName;
-    db.schools[index].numberOfDays = Number(numberOfDays);
-    db.schools[index].participants = Number(participants);
-    db.schools[index].startDate = startDate;
-    db.schools[index].endDate = endDate;
-    db.schools[index].teamNames = teamNames;
-    db.schools[index].eventLog = eventLog;
+    const result = await entercon.updateOne(
+      {},
+      {
+        $set: {
+          [`schools.${index}.schoolName`]: schoolName,
+          [`schools.${index}.programName`]: programName,
+          [`schools.${index}.numberOfDays`]: Number(numberOfDays),
+          [`schools.${index}.participants`]: Number(participants),
+          [`schools.${index}.startDate`]: startDate,
+          [`schools.${index}.endDate`]: endDate,
+          [`schools.${index}.teamNames`]: teamNames,
+        },
+      }
+    );
 
-    await db.save();
 
-    res.send(db.schools);
+    const updatedDb = await entercon.findOne();
 
+    res.send(updatedDb.schools);
   } catch (err) {
     console.log(err);
 
@@ -282,27 +286,31 @@ app.get("/add-school", async (req, res) => {
   try {
     const db = await entercon.findOne();
 
-    let teamNames = [];
-
-    for (let i = 0; i < req.query.selectedTeams.split(",").length; i++) {
-      teamNames.push({
-        name: req.query.selectedTeams.split(",")[i],
-        score: 0,
+    if (!db) {
+      return res.status(404).json({
+        success: false,
+        message: "Database not found",
       });
     }
 
-    let numberOfDays = Number(req.query.numberOfDays);
+    const selectedTeams = req.query.selectedTeams.split(",");
 
-    let eventLog = [];
+    const teamNames = selectedTeams.map((team) => ({
+      name: team,
+      score: 0,
+    }));
 
-    for (let i = 0; i < numberOfDays; i++) {
-      eventLog.push([]);
-    }
+    const numberOfDays = Number(req.query.numberOfDays);
+
+    const eventLog = Array.from(
+      { length: numberOfDays },
+      () => []
+    );
 
     const entry = {
       schoolName: req.query.schoolName,
       programName: req.query.programName,
-      numberOfDays: numberOfDays,
+      numberOfDays,
       participants: Number(req.query.participants),
       startDate: req.query.startDate,
       endDate: req.query.endDate,
@@ -310,12 +318,19 @@ app.get("/add-school", async (req, res) => {
       eventLog,
     };
 
-    db.schools.push(entry);
+    const result = await entercon.updateOne(
+      {},
+      {
+        $push: {
+          schools: entry,
+        },
+      }
+    );
 
-    await db.save();
 
-    res.send(db.schools);
+    const updatedDb = await entercon.findOne();
 
+    res.send(updatedDb.schools);
   } catch (err) {
     console.log(err);
 
@@ -328,7 +343,7 @@ app.get("/add-school", async (req, res) => {
 
 app.get("/delete-school", async (req, res) => {
   try {
-    const { i } = req.query;
+    const index = Number(req.query.i);
 
     const db = await entercon.findOne();
 
@@ -339,25 +354,28 @@ app.get("/delete-school", async (req, res) => {
       });
     }
 
-    const index = Number(i);
-
-    if (
-      isNaN(index) ||
-      index < 0 ||
-      index >= db.schools.length
-    ) {
+    if (isNaN(index) || index < 0 || index >= db.schools.length) {
       return res.status(400).json({
         success: false,
         message: "Invalid school index",
       });
     }
 
-    db.schools.splice(index, 1);
+    const schools = JSON.parse(JSON.stringify(db.schools));
 
-    await db.save();
+    schools.splice(index, 1);
 
-    res.send(db.schools);
+    const result = await entercon.updateOne(
+      {},
+      {
+        $set: { schools },
+      }
+    );
 
+
+    const updatedDb = await entercon.findOne();
+
+    res.send(updatedDb.schools);
   } catch (err) {
     console.log(err);
 
@@ -386,7 +404,9 @@ app.get("/add-points", async (req, res) => {
       });
     }
 
-    const school = db.schools[schoolIndex];
+    const schools = JSON.parse(JSON.stringify(db.schools));
+
+    const school = schools[schoolIndex];
 
     if (!school) {
       return res.status(404).json({
@@ -395,7 +415,6 @@ app.get("/add-points", async (req, res) => {
       });
     }
 
-    // Add event to the selected day
     school.eventLog[dayIndex].push({
       time,
       team: teamName,
@@ -403,7 +422,6 @@ app.get("/add-points", async (req, res) => {
       events: event,
     });
 
-    // Update team score
     const team = school.teamNames.find(
       (t) => t.name === teamName
     );
@@ -412,10 +430,17 @@ app.get("/add-points", async (req, res) => {
       team.score += points;
     }
 
-    await db.save();
+    const result = await entercon.updateOne(
+      {},
+      {
+        $set: { schools },
+      }
+    );
 
-    res.send(db.schools);
 
+    const updatedDb = await entercon.findOne();
+
+    res.send(updatedDb.schools);
   } catch (err) {
     console.log(err);
 
@@ -441,7 +466,9 @@ app.get("/undo-points", async (req, res) => {
       });
     }
 
-    const school = db.schools[schoolIndex];
+    const schools = JSON.parse(JSON.stringify(db.schools));
+
+    const school = schools[schoolIndex];
 
     if (!school) {
       return res.status(404).json({
@@ -471,10 +498,16 @@ app.get("/undo-points", async (req, res) => {
 
     dayEvents.splice(index, 1);
 
-    await db.save();
+    const result = await entercon.updateOne(
+      {},
+      {
+        $set: { schools },
+      }
+    );
 
-    res.send(db.schools);
+    const updatedDb = await entercon.findOne();
 
+    res.send(updatedDb.schools);
   } catch (err) {
     console.log(err);
 
@@ -486,7 +519,10 @@ app.get("/undo-points", async (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  entercon.find().then((s) => res.send(s)).catch((err) => console.log(err));
+  entercon
+    .find()
+    .then((s) => res.send(s))
+    .catch((err) => console.log(err));
 });
 
 app.listen(5000, () => {
