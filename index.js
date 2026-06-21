@@ -2,7 +2,10 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const mongoose = require("mongoose");
+const dns = require("dns");
 require("dotenv").config();
+
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 app.use(cors());
 
@@ -104,10 +107,12 @@ let data;
 
 mongoose
   .connect(
-    "mongodb+srv://NandhaPG:123@nandha.7qpquh8.mongodb.net/entercon?appName=nandha",
+    "mongodb+srv://NandhaPG:123@nandha.7qpquh8.mongodb.net/entercon?appName=nandha"
   )
-  .then((res) => console.log("Connected to MongoDB"))
-  .catch((err) => console.log(err));
+  .then(() => {
+    console.log("Connected to MongoDB");
+  })
+  .catch((err) => console.log("MongoDB connection error:", err));
 
 const entercon = mongoose.model("entercon", DatabaseSchema, "entercon");
 
@@ -508,6 +513,28 @@ app.get("/undo-points", async (req, res) => {
     const updatedDb = await entercon.findOne();
 
     res.send(updatedDb.schools);
+  } catch (err) {
+    console.log(err);
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+});
+
+app.get("/get-data", async (req, res) => {
+  try {
+    const db = await entercon.findOne();
+
+    if (!db) {
+      return res.status(404).json({
+        success: false,
+        message: "Database not found",
+      });
+    }
+
+    res.json(db.schools);
   } catch (err) {
     console.log(err);
 
